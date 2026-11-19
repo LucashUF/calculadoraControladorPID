@@ -52,22 +52,77 @@ th{font-weight:500;color:var(--mute)}
 .scroll{overflow-x:auto}
 footer{margin-top:28px;color:var(--mute);font-size:.85rem;border-top:1px solid var(--line);padding-top:14px}
 footer a{color:var(--acc)}
+.top{display:flex;align-items:center;gap:14px 20px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:22px}
+.logo{font:800 1.75rem/1 var(--sans);color:var(--acc);letter-spacing:-.02em}
+.logo.dca{font-style:italic;color:var(--ink)}
+.sep{width:1px;height:38px;background:var(--line)}
+.inst{font-size:.84rem;color:var(--mute);line-height:1.4}.inst b{color:var(--ink);font-weight:600}
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:center;padding:24px;margin-bottom:24px}
+@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr)}}
+.badge{display:inline-block;font-size:.76rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--acc);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.hero h1{margin:14px 0 10px}
+.hero p{color:var(--mute);margin:0 0 16px;max-width:62ch}
+.author{display:flex;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:14px}
+.av{width:36px;height:36px;border-radius:50%;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center;font-weight:600;font-size:.85rem}
+.author small{color:var(--mute)}
+.prev{border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--bg)}
+.qbar{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin-bottom:24px}
+.qbar-title{font-size:.85rem;color:var(--mute);margin-bottom:10px}
+.qg{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.qlab{font-size:.85rem;font-weight:600;margin-right:4px}
+.qb{width:auto;display:inline-block;font:500 .88rem var(--sans);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:5px 14px;text-decoration:none;cursor:pointer}
+.qb[aria-pressed="true"]{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.qb.dash{border-style:dashed;color:var(--mute)}
+.kicker{font-size:.78rem;font-weight:600;letter-spacing:.05em;color:var(--acc)}
+.tools-bar{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin:18px 0 12px}
+.ghost{width:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);font-size:.9rem;padding:8px 14px}
+.steps{display:grid;gap:10px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px}
+.step summary{cursor:pointer;font-weight:500;list-style:none}
+.step summary::before{content:"›";display:inline-block;width:14px;color:var(--mute)}
+.step[open] summary::before{content:"⌄"}
+.step>div{padding:10px 0 4px}
+.step p{margin:6px 0}
+details.tools>summary{cursor:pointer;list-style:none}
+details.tools summary h2{display:inline}
+details.tools summary .hint{margin:4px 0 0}
+@media print{body{background:#fff}.layout>form,#qbar,.tools-bar,details.tools,footer,.hero{display:none}.step{border:0;break-inside:avoid}.step>div{display:block}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header>
-  <h1>Projeto de PD, PI e PID pelo lugar das raízes</h1>
-  <p>Lucas Henrique · DCA-3701 · UFRN</p>
+<header class="top">
+  <span class="logo">UFRN</span><span class="sep"></span><span class="logo dca">DCA</span>
+  <div class="inst"><b>Departamento de Engenharia de Computação e Automação</b><br>Universidade Federal do Rio Grande do Norte</div>
 </header>
+<section class="card hero">
+  <div>
+    <span class="badge">DCA-3701 · Projeto de Sistemas de Controle · 2ª unidade</span>
+    <h1>Projeto de PD, PI e PID pelo lugar das raízes</h1>
+    <p>Informe G(s), H(s), o controlador e a especificação. A página leva os polos desejados ao LGR pelos critérios de ângulo e de módulo, devolve Kp, Ki e Kd e confere o resultado na resposta ao degrau.</p>
+    <div class="author"><span class="av">LH</span><div><b>Lucas Henrique</b><br><small>Autor</small></div></div>
+  </div>
+  <div class="prev"><span class="kicker">PRÉVIA DO PLANO S</span>
+    <svg viewBox="0 0 340 220" role="img" aria-label="Prévia do plano s" style="width:100%;height:auto">
+      <rect x="20" y="10" width="300" height="190" fill="none" stroke="var(--line)"/>
+      <path d="M20 110H320M170 10V200" stroke="var(--mute)"/>
+      <path d="M170 110L300 10M170 110L300 210" fill="none" stroke="var(--mute)" stroke-dasharray="4 4"/>
+      <circle cx="60" cy="110" r="6" fill="none" stroke="#ea580c" stroke-width="2"/>
+      <circle cx="115" cy="110" r="6" fill="none" stroke="var(--ok)" stroke-width="2"/>
+      <path d="M140 103l7 7M147 103l-7 7M175 103l7 7M182 103l-7 7" stroke="var(--pole)" stroke-width="2"/>
+      <circle cx="246" cy="58" r="6" fill="#7c3aed"/><circle cx="246" cy="164" r="6" fill="#7c3aed"/>
+    </svg>
+  </div>
+</section>
+<div class="qbar" id="qbar"></div>
 
 <div class="layout">
 <form class="card" id="f" autocomplete="off">
   <fieldset>
     <legend>Planta G(s)</legend>
-    <label for="gn">Numerador</label><input id="gn" value="1">
-    <label for="gd">Denominador</label><input id="gd" value="s(s+2)(s+5)">
+    <label for="gn">Numerador</label><input id="gn" value="4 16">
+    <label for="gd">Denominador</label><input id="gd" value="1 4 4 0">
   </fieldset>
   <fieldset>
     <legend>Realimentação H(s)</legend>
@@ -113,24 +168,21 @@ footer a{color:var(--acc)}
     </select>
     <div class="row">
       <div><label id="la" for="mp">MP máximo (%)</label><input id="mp" type="number" step="any" value="10"></div>
-      <div><label id="lb" for="ts">ts máximo (s)</label><input id="ts" type="number" step="any" value="2"></div>
+      <div><label id="lb" for="ts">ts máximo (s)</label><input id="ts" type="number" step="any" value="4"></div>
     </div>
-    <label for="cr">Critério de acomodação</label>
-    <select id="cr"><option value="4">2%</option><option value="3">5%</option></select>
+    <label for="cr">Critério</label>
+    <select id="cr"><option value="4">2%</option><option value="3" selected>5%</option></select>
   </fieldset>
   <button type="submit">Projetar controlador</button>
 </form>
 
 <main class="res" id="out" aria-live="polite">
-  <div class="card"><h2>Como funciona</h2>
-  <p style="margin:0">Informe G(s), H(s), o tipo de controlador e a especificação. A calculadora converte MP e ts em um polo desejado, aplica o critério de ângulo para achar o zero e o critério de módulo para achar o ganho. Depois devolve Kp, Ki e Kd e confere o resultado na resposta ao degrau.</p></div>
 </main>
 </div>
 
 <style>[hidden]{display:none!important}</style>
-<form class="card" id="tf" style="margin-top:24px" autocomplete="off">
-  <h2>Ferramentas avulsas</h2>
-  <p class="hint" style="margin:0 0 8px">Discretizar uma G(s) e Ziegler-Nichols, sem projetar controlador.</p>
+<details class="card tools" style="margin-top:24px"><summary><h2>Ferramentas avulsas</h2><p class="hint">Discretizar uma G(s) e Ziegler-Nichols, sem projetar controlador.</p></summary>
+<form id="tf" autocomplete="off" style="margin-top:12px">
   <label for="tl">Ferramenta</label>
   <select id="tl">
     <option value="disc">Discretizar uma função G(s)</option>
@@ -147,6 +199,7 @@ footer a{color:var(--acc)}
   <button type="submit" style="margin-top:12px">Calcular</button>
   <div id="tout" style="margin-top:14px" aria-live="polite"></div>
 </form>
+</details>
 
 <footer>
   Desenvolvido por Lucas Henrique, todo o cálculo roda no navegador.
@@ -317,65 +370,115 @@ function run(e){
     const{zeta,sigma,wd,wn,MP,tsS}=specPoles($("sm").value,parseFloat($("mp").value),parseFloat($("ts").value),k);
     const sd=[-sigma,wd];
     const P=Cx.mul(Cx.div(peval(Gn,sd),peval(Gd,sd)),Cx.div(peval(Hn,sd),peval(Hd,sd)));
-    GH={N:pmul(Gn,Hn),D:pmul(Gd,Hd)};
+    const Ng=pmul(Gn,Hn),Dg=pmul(Gd,Hd);
+    GH={N:Ng,D:Dg};
     const d=design(type,sd,P,parseFloat($("cv").value),parseFloat($("ce").value));
-    let html="";
-    const mem=[
-      `Especificação convertida: ζ = <b>${fmt(zeta)}</b> e ωn = ${fmt(wn)} rad/s (MP ≈ ${fmt(MP,3)} %, ts ≈ ${fmt(tsS,3)} s)`,
-      `Polo dominante: σ = ζωn = <b>${fmt(sigma)}</b> e ωd = ωn√(1−ζ²) = ${fmt(wd)} rad/s`,
-      `Polo desejado: sd = −σ + jωd = <b>${fc(sd)}</b>`,
-      `Planta no polo: G(sd)H(sd) = ${fc(P)}, com módulo ${fmt(d.magP)} e fase ${fmt(deg(d.argP),4)}°`,
-      `Critério de ângulo: o controlador precisa fornecer ∠C(sd) = 180° − ∠GH = <b>${fmt(deg(d.need),4)}°</b>`];
+    const cTxt=d.ctxt?d.ctxt:d.lead?"C(s) = K(s + z)/(s + p)":type==="PD"?"C(s) = Kp + Kd·s":type==="PI"?"C(s) = Kp + Ki/s":"C(s) = Kp + Ki/s + Kd·s";
+    const spec=`${$("la").textContent} = ${$("mp").value}, ${$("lb").textContent} = ${$("ts").value}, critério de ${k===4?"2%":"5%"}`;
+    const head=`<div class="card">
+      <span class="kicker">${curQ?`${curQ.ex}º EXERCÍCIO · QUESTÃO ${curQ.q}`:"CÁLCULO AVULSO"}</span>
+      ${curQ&&curQ.enun?`<p style="margin:10px 0 0">${curQ.enun}</p>`:curQ?`<p class="msg">Enunciado ainda não cadastrado para esta questão. Os campos mostram os dados atuais.</p>`:""}
+      <p class="hint" style="margin-top:12px">G(s) = (${polyStr(Gn,"s")})/(${polyStr(Gd,"s")}) · H(s) = (${polyStr(Hn,"s")})/(${polyStr(Hd,"s")}) · Controlador ${type} · ${spec}</p></div>
+      <div class="tools-bar"><button type="button" class="ghost" onclick="setAll(true)">Expandir todos os passos</button><button type="button" class="ghost" onclick="window.print()">Baixar PDF</button></div>`;
+    const S=[];
+    S.push(["Especificações, ζ e ωn",`<p>Especificação informada: ${spec}.</p><p>Convertida em ζ = <b>${fmt(zeta)}</b> e ωn = ${fmt(wn)} rad/s (MP ≈ ${fmt(MP,3)} %, ts ≈ ${fmt(tsS,3)} s).</p>`]);
+    S.push(["Polos dominantes desejados",`<p>σ = ζωn = <b>${fmt(sigma)}</b> e ωd = ωn√(1−ζ²) = ${fmt(wd)} rad/s.</p><p>Polo desejado: sd = −σ + jωd = <b>${fc(sd)}</b></p>`]);
+    S.push(["Malha aberta com o controlador",`<p>G(sd)H(sd) = ${fc(P)}, com módulo ${fmt(d.magP)} e fase ${fmt(deg(d.argP),4)}°.</p><p>Controlador: ${cTxt}</p>`]);
+    S.push(["Critério de ângulo em sd",`<p>O controlador precisa fornecer ∠C(sd) = 180° − ∠GH(sd) = <b>${fmt(deg(d.need),4)}°</b>.</p>`]);
     if(!d.ok){
-      html=`<div class="card"><h2>Memória de cálculo</h2><ol class="mem">${mem.map(m=>`<li>${m}</li>`).join("")}</ol></div><p class="msg">${d.why}</p>`;
-      out.innerHTML=html;return;
+      out.innerHTML=head+stepsHtml(S)+`<p class="msg">${d.why}</p>`;
+      last=null;return;
     }
     const zTxt=d.z>0?"":" (zero no semiplano direito: confira a estabilidade)";
-    mem.push(d.note?d.note:d.lead?`Controlador K(s + z)/(s + p): z = <b>${fmt(d.z)}</b> e p = <b>${fmt(d.p)}</b>, um deles dado e o outro pelo critério de ângulo`:`Zero do controlador: ∠(sd + z) = ${fmt(deg(d.phi),4)}°, então z = σ + ωd/tan(φ) = <b>${fmt(d.z)}</b>${zTxt}`,
-      `Critério de módulo: |C(sd)·G(sd)·H(sd)| = 1 resulta nos ganhos abaixo`);
-    const Ng=pmul(Gn,Hn),Dg=pmul(Gd,Hd);
+    S.push(["Localização do zero do controlador",d.note?`<p>${d.note}</p>`:d.lead?`<p>Controlador K(s + z)/(s + p): z = <b>${fmt(d.z)}</b> e p = <b>${fmt(d.p)}</b>, um deles dado e o outro pelo critério de ângulo.</p>`:`<p>∠(sd + z) = ${fmt(deg(d.phi),4)}°, então z = σ + ωd/tan(φ) = <b>${fmt(d.z)}</b>${zTxt}.</p>`]);
+    S.push(["Critério de módulo e Kc",`<p>|C(sd)·G(sd)·H(sd)| = 1 fornece os ganhos abaixo${d.m!==undefined?`, com |sd + z| = ${fmt(d.m)}`:""}.</p>`]);
+    const cards=d.cards||(d.lead?[[d.K,"K"],[d.z,"zero z"],[d.p,"polo p"]]:[[d.Kp,"Kp"],[d.Ki,"Ki"],[d.Kd,"Kd"],[d.z,"zero z"]]);
+    S.push(["Ganhos do controlador",`<div class="gains">${cards.map(c=>`<div><b>${fmt(c[0])}</b><span>${c[1]}</span></div>`).join("")}</div><p class="hint">${cTxt}</p>`]);
     const numT=pmul(pmul(d.Nc,Gn),Hd),denT=padd(pmul(pmul(d.Dc,Gd),Hd),pmul(pmul(d.Nc,Gn),Hn));
     const poles=roots(denT);
     const dist=Math.min(...poles.map(p=>Cx.abs(Cx.sub(p,sd))));
     const stable=poles.every(p=>p[0]<-1e-9);
+    const cl=constOf(pmul(d.Nc,Ng),pmul(d.Dc,Dg));
+    const ess=cl&&cl.t===0?1/(1+cl.c):0;
+    S.push(["Malha fechada, dominância e erro (verificação)",`<p>Polos de malha fechada: ${poles.map(p=>`<b>${fc(p)}</b>`).join(", ")}.</p><p class="${stable?"ok":"bad"}">${stable?"Todos os polos estão no semiplano esquerdo: sistema estável.":"Há polo fora do semiplano esquerdo: sistema instável."} Distância do polo mais próximo ao polo desejado: ${fmt(dist,3)}.</p>${cl?`<p>${cl.nome} = ${fmt(cl.c)} no sistema compensado. Erro em regime ao degrau unitário: ${cl.t===0?`e<sub>ss</sub> = 1/(1+${cl.nome}) = <b>${fmt(ess)}</b>`:"e<sub>ss</sub> = 0"}.</p>`:""}<canvas id="c2" role="img" aria-label="Polos de malha fechada no plano s"></canvas><p class="hint">Círculos: polo desejado. ×: polos de malha fechada.</p>`]);
     const tmax=Math.max(tsS*3,0.5);
     const sim=stepResponse(numT,denT,tmax,6000);
-    const cTxt=d.ctxt?d.ctxt:d.lead?"C(s) = K(s + z)/(s + p)":type==="PD"?"C(s) = Kp + Kd·s":type==="PI"?"C(s) = Kp + Ki/s":"C(s) = Kp + Ki/s + Kd·s";
-    html=`<div class="card"><h2>Ganhos do controlador</h2>
-      <div class="gains">${(d.cards||(d.lead?[[d.K,"K"],[d.z,"zero z"],[d.p,"polo p"]]:[[d.Kp,"Kp"],[d.Ki,"Ki"],[d.Kd,"Kd"],[d.z,"zero z"]])).map(c=>`<div><b>${fmt(c[0])}</b><span>${c[1]}</span></div>`).join("")}</div>
-      <p style="margin:0;color:var(--mute);font-size:.92rem">${cTxt}</p></div>
-      <div class="card"><h2>Memória de cálculo</h2><ol class="mem">${mem.map(m=>`<li>${m}</li>`).join("")}</ol></div>`;
-    html+=discCard(d);
+    let yf=NaN;
     if(sim){
-      const yf=Math.abs(peval(denT,[0,0])[0])>1e-12?peval(numT,[0,0])[0]/peval(denT,[0,0])[0]:sim.y[sim.y.length-1];
+      yf=Math.abs(peval(denT,[0,0])[0])>1e-12?peval(numT,[0,0])[0]/peval(denT,[0,0])[0]:sim.y[sim.y.length-1];
       const m=metrics(sim.t,sim.y,yf,k===4?.02:.05);
       const okMP=m.os<=MP+0.5,okTs=m.ts<=tsS*1.02;
-      html+=`<div class="card"><h2>Conferência na resposta ao degrau</h2><div class="scroll"><table>
+      S.push(["Resposta ao degrau unitário (verificação)",`<div class="scroll"><table>
         <tr><th></th><th>Obtido</th><th>Pedido</th></tr>
         <tr><td>Sobressinal</td><td class="${okMP?"ok":"bad"}">${fmt(m.os,4)} %</td><td>≤ ${fmt(MP)} %</td></tr>
         <tr><td>Tempo de acomodação (${k===4?"2%":"5%"})</td><td class="${okTs?"ok":"bad"}">${fmt(m.ts,4)} s</td><td>≤ ${fmt(tsS)} s</td></tr>
         <tr><td>Tempo de pico</td><td>${fmt(m.tp,4)} s</td><td></td></tr>
         <tr><td>Valor final</td><td>${fmt(yf,4)}</td><td></td></tr></table></div>
-        <p class="hint">Os zeros do controlador e da planta alteram a resposta real em relação ao par de polos dominantes. Se MP ou ts saírem do pedido, reduza a especificação e projete de novo.</p>
-        <div class="plots" style="margin-top:12px"><canvas id="c1" role="img" aria-label="Resposta ao degrau"></canvas><canvas id="c2" role="img" aria-label="Polos de malha fechada no plano s"></canvas></div>
-        <p class="hint">Linha tracejada: ts pedido. No plano s, círculos marcam o polo desejado e × marcam os polos de malha fechada.</p></div>`;
-      last={sim,yf,k,tsS,poles,sd};
+        <canvas id="c1" role="img" aria-label="Resposta ao degrau"></canvas>
+        <p class="hint">Linha tracejada: ts pedido. Faixa sombreada: ${k===4?"2%":"5%"} em torno do valor final.</p>`]);
     }else{
-      html+=`<p class="msg">A função de transferência de malha fechada é imprópria (grau do numerador maior que o do denominador), então a resposta ao degrau não foi simulada.</p>`;
-      last=null;
+      S.push(["Resposta ao degrau unitário (verificação)",`<p class="msg">A função de transferência de malha fechada é imprópria (grau do numerador maior que o do denominador), então a resposta ao degrau não foi simulada.</p>`]);
     }
-    html+=`<div class="card"><h2>Polos de malha fechada</h2><div class="scroll"><table>${poles.map(p=>`<tr><td>${fc(p)}</td></tr>`).join("")}</table></div>
-      <p class="hint ${stable?"ok":"bad"}" style="margin-top:8px">${stable?"Todos os polos estão no semiplano esquerdo: sistema estável.":"Há polo fora do semiplano esquerdo: sistema instável."} Distância do polo mais próximo ao polo desejado: ${fmt(dist,3)}.</p></div>`;
-    out.innerHTML=html;
+    const br=[];
+    for(let i=0;i<=120;i++){try{br.push(roots(padd(pmul(d.Dc,Dg),pscale(pmul(d.Nc,Ng),Math.pow(10,-2+4*i/120)))))}catch(_){}}
+    S.push(["LGR do sistema compensado (verificação)",`<p>Varredura do ganho do controlador em torno do valor de projeto. Pontos: ramos do LGR.</p><canvas id="c3" role="img" aria-label="Lugar das raízes do sistema compensado"></canvas><p class="hint">Círculos: polo desejado. ×: polos de malha fechada no projeto.</p>`,true]);
+    out.innerHTML=head+stepsHtml(S)+discCard(d);
+    out.querySelectorAll("details.step").forEach(x=>x.addEventListener("toggle",drawPlots));
+    last={sim,yf,k,tsS,poles,sd,lgr:br};
     drawPlots();
   }catch(err){
     out.innerHTML=`<p class="msg">${err.message}</p>`;last=null;
   }
 }
+/* ---------- passos, constante de erro e questões ---------- */
+const stepsHtml=S=>`<div class="steps">${S.map((s,i)=>`<details class="step"><summary>${s[2]?"":`<b>Passo ${i+1}:</b> `}${s[0]}</summary><div>${s[1]}</div></details>`).join("")}</div>`;
+function setAll(on){document.querySelectorAll("#out details.step").forEach(x=>x.open=on)}
+window.onbeforeprint=()=>setAll(true);
+function constOf(N,D){
+  const f=p=>p.findIndex(v=>Math.abs(v)>1e-12),kN=f(N),kD=f(D);
+  if(kN<0||kD<0)return null;const t=kD-kN;if(t<0)return null;
+  return{t,c:N[kN]/D[kD],nome:["Kp","Kv","Ka"][t]||"K"};
+}
+/* Enunciados cadastrados. Questões sem dados mantêm os campos atuais: complete-as aqui. */
+const LISTA_PDF={1:"lista-exercicio-1.pdf",2:"lista-exercicio-2.pdf"};
+const QUESTOES=[
+  {ex:1,q:1,enun:"Dado o sistema G(s) = 4(s + 4)/(s(s + 2)²) e H(s) = 1, projetar um controlador PD para que, em malha fechada, o sistema apresente MP ≤ 10% e tempo de acomodação (5%) inferior a 4 s.",
+   gn:"4 16",gd:"1 4 4 0",hn:"1",hd:"1",ct:"PD",sm:"mp_ts",mp:10,ts:4,cr:"3"},
+  {ex:1,q:2},{ex:1,q:3},{ex:1,q:4},{ex:2,q:1},{ex:2,q:2}];
+let curQ=null;
+function buildQbar(){
+  $("qbar").innerHTML=`<div class="qbar-title">Questões da lista</div>`+[1,2].map(ex=>`<div class="qg"><span class="qlab">${ex}º exercício</span>${QUESTOES.filter(x=>x.ex===ex).map(x=>`<button type="button" class="qb" data-ex="${ex}" data-q="${x.q}" aria-pressed="false">Questão ${x.q}</button>`).join("")}<a class="qb dash" href="${LISTA_PDF[ex]}" target="_blank" rel="noopener">PDF da lista</a></div>`).join("");
+  $("qbar").onclick=e=>{const b=e.target.closest("button.qb");if(b)selectQ(+b.dataset.ex,+b.dataset.q)};
+}
+function selectQ(ex,q){
+  curQ=QUESTOES.find(x=>x.ex===ex&&x.q===q)||null;
+  document.querySelectorAll("#qbar button.qb").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.ex===ex&&+b.dataset.q===q)));
+  if(curQ&&curQ.enun){
+    $("gn").value=curQ.gn;$("gd").value=curQ.gd;$("hn").value=curQ.hn;$("hd").value=curQ.hd;
+    $("ct").value=curQ.ct;setCt();
+    $("sm").value=curQ.sm;setSpec();
+    $("mp").value=curQ.mp;$("ts").value=curQ.ts;$("cr").value=curQ.cr;
+  }
+  run();
+}
+function plotLGR(cv,branches,poles,sd){
+  const{g,w,h}=setup(cv);const pad={l:44,r:12,t:12,b:28};
+  const pts=branches.flat();
+  const R=1.2*Math.max(1,Math.abs(sd[0]),Math.abs(sd[1]),...pts.map(p=>Math.max(Math.abs(p[0]),Math.abs(p[1]))));
+  const{X,Y}=axes(g,w,h,-2*R,R*.3,-R,R,pad,"Re","Im");
+  g.fillStyle=css("--curve");
+  pts.forEach(p=>{g.beginPath();g.arc(X(p[0]),Y(p[1]),1.6,0,TWO_PI);g.fill()});
+  g.strokeStyle=css("--des");g.lineWidth=2;
+  [sd,[sd[0],-sd[1]]].forEach(p=>{g.beginPath();g.arc(X(p[0]),Y(p[1]),7,0,TWO_PI);g.stroke()});
+  g.strokeStyle=css("--pole");
+  poles.forEach(p=>{const x=X(p[0]),y=Y(p[1]);g.beginPath();g.moveTo(x-5,y-5);g.lineTo(x+5,y+5);g.moveTo(x+5,y-5);g.lineTo(x-5,y+5);g.stroke()});
+}
 function drawPlots(){
-  if(!last||!$("c1"))return;
-  plotStep($("c1"),last.sim.t,last.sim.y,last.yf,last.k===4?.02:.05,last.tsS);
-  plotPoles($("c2"),last.poles,last.sd);
+  if(!last)return;
+  const vis=id=>{const c=$(id);return!!c&&c.clientWidth>0};
+  if(last.sim&&vis("c1"))plotStep($("c1"),last.sim.t,last.sim.y,last.yf,last.k===4?.02:.05,last.tsS);
+  if(vis("c2"))plotPoles($("c2"),last.poles,last.sd);
+  if(vis("c3"))plotLGR($("c3"),last.lgr,last.poles,last.sd);
 }
 /* ---------- especificação -> polo dominante ---------- */
 function specPoles(m,a,b,k){
@@ -540,7 +643,8 @@ $("tf").addEventListener("submit",runTools);
 $("f").addEventListener("submit",run);
 window.addEventListener("resize",drawPlots);
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",drawPlots);
-run();
+buildQbar();
+selectQ(1,1);
 </script>
 </body>
 </html>
