@@ -9,9 +9,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
 <style>
-:root{--bg:#f5f7fa;--card:#fff;--ink:#14202b;--mute:#5b6b7a;--line:#d7dee6;--acc:#16a34a;--acc-ink:#fff;--warn:#b4560a;--ok:#15803d;--grid:#e6ebf1;--pole:#c2410c;--des:#d99a00;--curve:#15803d;
+:root{--bg:#f5f7fa;--card:#fff;--ink:#14202b;--mute:#5b6b7a;--line:#d7dee6;--acc:#1f4fb8;--acc-ink:#fff;--warn:#b4560a;--ok:#15803d;--grid:#e6ebf1;--pole:#c2410c;--des:#d99a00;--curve:#1f4fb8;
 --serif:"Source Serif 4",Georgia,"Times New Roman",serif;--sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-@media (prefers-color-scheme:dark){:root{--bg:#0f161d;--card:#17212b;--ink:#e6edf3;--mute:#93a3b3;--line:#2a3846;--acc:#4ade80;--acc-ink:#0b1220;--warn:#f0a35e;--ok:#4ade80;--grid:#223040;--pole:#fb923c;--des:#facc15;--curve:#4ade80}}
+@media (prefers-color-scheme:dark){:root{--bg:#0f161d;--card:#17212b;--ink:#e6edf3;--mute:#93a3b3;--line:#2a3846;--acc:#6f9bff;--acc-ink:#0b1220;--warn:#f0a35e;--ok:#4ade80;--grid:#223040;--pole:#fb923c;--des:#facc15;--curve:#7aa5ff}}
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *,*::before,*::after{box-sizing:inherit}
 html,body{margin:0}
@@ -266,207 +266,376 @@ function roots(p){
   return z.map(r=>[r[0],Math.abs(r[1])<1e-7?0:r[1]]);
 }
 
-/* ---------- utilitários do passo a passo ---------- */
-const dgn=r=>((deg(r)%360)+360)%360;
-const cxT=c=>Math.abs(c[1])<1e-9?fmt(c[0]):`${fmt(c[0])}${c[1]<0?"-":"+"}${fmt(Math.abs(c[1]))}j`;
-const EQ=s=>`$$${s}$$`;
-const ctrlTex={PD:"C(s)=K_p+K_d\\,s=K_c(s+z)",PI:"C(s)=K_p+\\frac{K_i}{s}=K_p\\frac{s+z}{s}",PID:"C(s)=K_p+\\frac{K_i}{s}+K_d\\,s=K_d\\frac{(s+z)^2}{s}"};
-function tex(el){
-  if(window.renderMathInElement)renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false});
-}
-window.addEventListener("load",()=>tex($("out")));
+/* ---------- projeto pelo LGR ---------- */
+const TWO_PI=2*Math.PI,mod2=x=>((x%TWO_PI)+TWO_PI)%TWO_PI,deg=x=>x*180/Math.PI;
 
-function passoEspec(m,a,b,k,r){
-  const{zeta,sigma,wd,wn}=r,c=k===4?"2%":"5%",L=[];
-  if(m==="mp_ts"||m==="mp_tp"){
-    const ln=Math.log(a/100),q=fmt(ln*ln,4);
-    L.push(`<p><b>Sobressinal máximo:</b> $M_P\\le ${fmt(a)}\\%$</p>`,
-      EQ(`\\zeta=\\sqrt{\\frac{\\left(\\ln\\frac{M_P}{100}\\right)^2}{\\pi^2+\\left(\\ln\\frac{M_P}{100}\\right)^2}}`),
-      EQ(`\\ln\\frac{${fmt(a)}}{100}=${fmt(ln,4)}\\;\\Rightarrow\\;\\zeta=\\sqrt{\\frac{${q}}{\\pi^2+${q}}}=${fmt(zeta,4)}`));
-  }
-  if(m==="mp_ts"){
-    L.push(`<p><b>Tempo de acomodação (${c}):</b> $t_s<${fmt(b)}\\,\\text{s}$</p>`,
-      EQ(`t_s=\\frac{${k}}{\\sigma}\\;\\Rightarrow\\;\\sigma=\\frac{${k}}{${fmt(b)}}=${fmt(sigma,4)}`),
-      EQ(`\\omega_d=\\frac{\\sigma\\sqrt{1-\\zeta^2}}{\\zeta}=\\frac{${fmt(sigma,4)}\\sqrt{1-${fmt(zeta,4)}^2}}{${fmt(zeta,4)}}=${fmt(wd,4)}`));
-  }else if(m==="mp_tp"){
-    L.push(`<p><b>Tempo de pico:</b> $t_p=${fmt(b)}\\,\\text{s}$</p>`,
-      EQ(`\\omega_d=\\frac{\\pi}{t_p}=\\frac{\\pi}{${fmt(b)}}=${fmt(wd,4)}`),
-      EQ(`\\sigma=\\frac{\\zeta\\,\\omega_d}{\\sqrt{1-\\zeta^2}}=${fmt(sigma,4)}`));
-  }else if(m==="z_ts"){
-    L.push(`<p><b>Amortecimento dado:</b> $\\zeta=${fmt(a)}$</p>`,
-      EQ(`\\sigma=\\frac{${k}}{t_s}=\\frac{${k}}{${fmt(b)}}=${fmt(sigma,4)}`),
-      EQ(`\\omega_d=\\frac{\\sigma\\sqrt{1-\\zeta^2}}{\\zeta}=${fmt(wd,4)}`));
-  }else if(m==="ts_tp"){
-    L.push(`<p><b>Tempos dados:</b> $t_s=${fmt(a)}\\,\\text{s}$ e $t_p=${fmt(b)}\\,\\text{s}$</p>`,
-      EQ(`\\sigma=\\frac{${k}}{t_s}=${fmt(sigma,4)}`),
-      EQ(`\\omega_d=\\frac{\\pi}{t_p}=${fmt(wd,4)}`),
-      EQ(`\\zeta=\\frac{\\sigma}{\\sqrt{\\sigma^2+\\omega_d^2}}=${fmt(zeta,4)}`));
-  }else if(m==="z_wn"){
-    L.push(`<p><b>Dados:</b> $\\zeta=${fmt(a)}$ e $\\omega_n=${fmt(b)}\\,\\text{rad/s}$</p>`,
-      EQ(`\\sigma=\\zeta\\,\\omega_n=${fmt(sigma,4)}`),
-      EQ(`\\omega_d=\\omega_n\\sqrt{1-\\zeta^2}=${fmt(wd,4)}`));
-  }else{
-    L.push(`<p><b>Polo desejado dado:</b> $\\sigma=${fmt(sigma,4)}$ e $\\omega_d=${fmt(wd,4)}$</p>`);
-  }
-  L.push(EQ(`\\omega_n=\\sqrt{\\sigma^2+\\omega_d^2}=${fmt(wn,4)}\\,\\text{rad/s}`));
-  return L.join("");
+function design(type,sd,P,x,y){
+  if(type==="LZ"||type==="LP")return designLead(type,sd,P,x);
+  if(type==="AB")return designA(sd,P);
+  if(type==="LL")return designLL(sd,P,x,y);
+  if(type==="LG")return designLag(sd,P,y);
+  const sig=-sd[0],w=sd[1],magP=Cx.abs(P),argP=Cx.arg(P),argSd=Cx.arg(sd),magSd=Cx.abs(sd);
+  const need=mod2(Math.PI-argP);                       // ângulo exigido de C(sd)
+  let phi;                                              // ângulo de (sd + z)
+  if(type==="PD")phi=need;
+  else if(type==="PI")phi=mod2(need+argSd);
+  else phi=mod2(need+argSd)/2;
+  if(phi<=1e-9||phi>=Math.PI-1e-9)return{ok:false,need,argP,magP,phi,
+    why:"O critério de ângulo exige um zero real no infinito (ou fora do eixo real). O polo desejado já está sobre o lugar das raízes, ou o controlador escolhido não consegue fornecer o ângulo necessário. Tente outro tipo de controlador ou outra especificação."};
+  const z=sig+w/Math.tan(phi);
+  const m=Math.hypot(z-sig,w);                          // |sd + z|
+  let Kp,Ki,Kd,Nc,Dc;
+  if(type==="PD"){Kd=1/(m*magP);Kp=Kd*z;Ki=0;Nc=[Kp,Kd];Dc=[1]}
+  else if(type==="PI"){Kp=magSd/(m*magP);Ki=Kp*z;Kd=0;Nc=[Ki,Kp];Dc=[0,1]}
+  else{Kd=magSd/(m*m*magP);Kp=2*Kd*z;Ki=Kd*z*z;Nc=[Ki,Kp,Kd];Dc=[0,1]}
+  return{ok:true,need,argP,magP,phi,z,m,Kp,Ki,Kd,Nc,Dc};
 }
+
+/* ---------- simulação do degrau ---------- */
+function stepResponse(num,den,tmax,N){
+  num=trim(num);den=trim(den);const n=den.length-1;
+  if(num.length>den.length)return null;
+  if(n<1)return null;
+  const a=pscale(den.slice().reverse(),1/den[n]);               // alto -> baixo, mônico
+  const b=Array(n+1).fill(0);const nr=pscale(num.slice().reverse(),1/den[n]);
+  nr.forEach((v,i)=>b[n+1-nr.length+i]=v);
+  const D=b[0],c=[];for(let i=1;i<=n;i++)c[i]=b[i]-D*a[i];
+  const f=(x,u)=>{const dx=Array(n);for(let k=0;k<n-1;k++)dx[k]=x[k+1];
+    let s=u;for(let k=0;k<n;k++)s-=a[n-k]*x[k];dx[n-1]=s;return dx};
+  const h=tmax/N;let x=Array(n).fill(0);const t=[],y=[];
+  const out=x=>{let s=D;for(let k=0;k<n;k++)s+=c[n-k]*x[k];return s};
+  for(let i=0;i<=N;i++){
+    t.push(i*h);y.push(out(x));
+    const k1=f(x,1),k2=f(x.map((v,j)=>v+h/2*k1[j]),1),k3=f(x.map((v,j)=>v+h/2*k2[j]),1),k4=f(x.map((v,j)=>v+h*k3[j]),1);
+    x=x.map((v,j)=>v+h/6*(k1[j]+2*k2[j]+2*k3[j]+k4[j]));
+    if(!isFinite(x[0])||Math.abs(x[0])>1e12)break;
+  }
+  return{t,y};
+}
+
+function metrics(t,y,yf,band){
+  let mx=-Infinity,ip=0;y.forEach((v,i)=>{if(v>mx){mx=v;ip=i}});
+  const os=Math.abs(yf)>1e-9?Math.max(0,(mx-yf)/Math.abs(yf)*100):NaN;
+  let ts=t[t.length-1];const tol=band*Math.abs(yf);
+  for(let i=y.length-1;i>=0;i--){if(Math.abs(y[i]-yf)>tol){ts=i<y.length-1?t[i+1]:NaN;break}if(i===0)ts=0}
+  return{os,tp:t[ip],ts};
+}
+
+/* ---------- desenho ---------- */
+function setup(cv){const r=window.devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;cv.width=w*r;cv.height=h*r;const g=cv.getContext("2d");g.scale(r,r);return{g,w,h}}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function axes(g,w,h,x0,x1,y0,y1,pad,xl,yl){
+  const X=v=>pad.l+(v-x0)/(x1-x0)*(w-pad.l-pad.r),Y=v=>h-pad.b-(v-y0)/(y1-y0)*(h-pad.t-pad.b);
+  g.lineWidth=1;g.font="11px "+css("--sans");g.fillStyle=css("--mute");
+  const tick=(a,b)=>{const r=b-a,s=Math.pow(10,Math.floor(Math.log10(r/4))),m=[1,2,5,10].find(k=>r/(k*s)<=6)*s;const o=[];for(let v=Math.ceil(a/m)*m;v<=b+1e-9;v+=m)o.push(Math.abs(v)<m/1e6?0:v);return o};
+  tick(x0,x1).forEach(v=>{g.strokeStyle=css("--grid");g.beginPath();g.moveTo(X(v),pad.t);g.lineTo(X(v),h-pad.b);g.stroke();g.textAlign="center";g.fillText(+v.toPrecision(3),X(v),h-pad.b+14)});
+  tick(y0,y1).forEach(v=>{g.strokeStyle=css("--grid");g.beginPath();g.moveTo(pad.l,Y(v));g.lineTo(w-pad.r,Y(v));g.stroke();g.textAlign="right";g.fillText(+v.toPrecision(3),pad.l-5,Y(v)+4)});
+  g.strokeStyle=css("--mute");g.beginPath();if(x0<0&&x1>0){g.moveTo(X(0),pad.t);g.lineTo(X(0),h-pad.b)}if(y0<0&&y1>0){g.moveTo(pad.l,Y(0));g.lineTo(w-pad.r,Y(0))}g.stroke();
+  g.strokeRect(pad.l,pad.t,w-pad.l-pad.r,h-pad.t-pad.b);
+  g.fillStyle=css("--mute");g.textAlign="right";g.fillText(xl,w-pad.r,h-3);g.textAlign="left";g.fillText(yl,pad.l+4,pad.t+12);
+  return{X,Y};
+}
+function plotStep(cv,t,y,yf,band,tsSpec){
+  const{g,w,h}=setup(cv);const pad={l:44,r:12,t:12,b:28};
+  const ymax=Math.max(1.1*Math.max(...y,yf),0.1),ymin=Math.min(0,...y);
+  const{X,Y}=axes(g,w,h,0,t[t.length-1],ymin,ymax,pad,"t (s)","y(t)");
+  g.fillStyle=css("--grid");g.globalAlpha=.7;g.fillRect(pad.l,Y(yf*(1+band)),w-pad.l-pad.r,Y(yf*(1-band))-Y(yf*(1+band)));g.globalAlpha=1;
+  g.setLineDash([5,4]);g.strokeStyle=css("--des");g.beginPath();g.moveTo(X(tsSpec),pad.t);g.lineTo(X(tsSpec),h-pad.b);g.stroke();g.setLineDash([]);
+  g.strokeStyle=css("--curve");g.lineWidth=2;g.beginPath();t.forEach((v,i)=>{const yy=Math.max(ymin,Math.min(ymax,y[i]));i?g.lineTo(X(v),Y(yy)):g.moveTo(X(v),Y(yy))});g.stroke();
+}
+function plotPoles(cv,poles,sd){
+  const{g,w,h}=setup(cv);const pad={l:44,r:12,t:12,b:28};
+  const pts=[...poles,sd,[sd[0],-sd[1]]];
+  let xr=Math.max(1,...pts.map(p=>Math.abs(p[0]))),yr=Math.max(1,...pts.map(p=>Math.abs(p[1])));
+  const x0=-xr*1.25,x1=Math.min(xr*0.4,xr),y0=-yr*1.25,y1=yr*1.25;
+  const{X,Y}=axes(g,w,h,x0,x1,y0,y1,pad,"Re","Im");
+  g.strokeStyle=css("--des");g.lineWidth=2;
+  [sd,[sd[0],-sd[1]]].forEach(p=>{g.beginPath();g.arc(X(p[0]),Y(p[1]),7,0,TWO_PI);g.stroke()});
+  g.strokeStyle=css("--pole");
+  poles.forEach(p=>{const x=X(p[0]),y=Y(p[1]);g.beginPath();g.moveTo(x-5,y-5);g.lineTo(x+5,y+5);g.moveTo(x+5,y-5);g.lineTo(x-5,y+5);g.stroke()});
+}
+
+/* ---------- interface ---------- */
+const $=id=>document.getElementById(id);
+const fmt=(x,d=5)=>{if(!isFinite(x))return"—";const v=Number(x.toPrecision(d));return Object.is(v,-0)?"0":String(v)};
+const fc=c=>Math.abs(c[1])<1e-9?fmt(c[0]):fmt(c[0])+(c[1]<0?" − ":" + ")+fmt(Math.abs(c[1]))+"j";
+let last=null;
 
 function run(e){
   if(e)e.preventDefault();
   const out=$("out");
   try{
     const Gn=parsePoly($("gn").value),Gd=parsePoly($("gd").value),Hn=parsePoly($("hn").value),Hd=parsePoly($("hd").value);
-    const type=$("ct").value,k=parseFloat($("cr").value),sm=$("sm").value,c=k===4?"2%":"5%";
-    const A=parseFloat($("mp").value),B=parseFloat($("ts").value);
-    const SP=specPoles(sm,A,B,k);
-    const{zeta,sigma,wd,wn,MP,tsS}=SP;
+    const type=$("ct").value,k=parseFloat($("cr").value);
+    const{zeta,sigma,wd,wn,MP,tsS}=specPoles($("sm").value,parseFloat($("mp").value),parseFloat($("ts").value),k);
     const sd=[-sigma,wd];
-    const Ng=pmul(Gn,Hn),Dg=pmul(Gd,Hd);
     const P=Cx.mul(Cx.div(peval(Gn,sd),peval(Gd,sd)),Cx.div(peval(Hn,sd),peval(Hd,sd)));
+    const Ng=pmul(Gn,Hn),Dg=pmul(Gd,Hd);
     GH={N:Ng,D:Dg};
     const d=design(type,sd,P,parseFloat($("cv").value),parseFloat($("ce").value));
     const cTxt=d.ctxt?d.ctxt:d.lead?"C(s) = K(s + z)/(s + p)":type==="PD"?"C(s) = Kp + Kd·s":type==="PI"?"C(s) = Kp + Ki/s":"C(s) = Kp + Ki/s + Kd·s";
-    const spec=`${$("la").textContent} = ${$("mp").value}, ${$("lb").textContent} = ${$("ts").value}, critério de ${c}`;
+    const spec=`${$("la").textContent} = ${$("mp").value}, ${$("lb").textContent} = ${$("ts").value}, critério de ${k===4?"2%":"5%"}`;
     const head=`<div class="card">
       <span class="kicker">${curQ?`${curQ.ex}º EXERCÍCIO · QUESTÃO ${curQ.q}`:"CÁLCULO AVULSO"}</span>
       ${curQ&&curQ.enun?`<p style="margin:10px 0 0">${curQ.enun}</p>`:curQ?`<p class="msg">Enunciado ainda não cadastrado para esta questão. Os campos mostram os dados atuais.</p>`:""}
       <p class="hint" style="margin-top:12px">G(s) = (${polyStr(Gn,"s")})/(${polyStr(Gd,"s")}) · H(s) = (${polyStr(Hn,"s")})/(${polyStr(Hd,"s")}) · Controlador ${type} · ${spec}</p></div>
       <div class="tools-bar"><button type="button" class="ghost" onclick="setAll(true)">Expandir todos os passos</button><button type="button" class="ghost" onclick="window.print()">Baixar PDF</button></div>`;
-    const polosP=roots(Dg),zerosP=roots(Ng),kG=Ng[Ng.length-1]/Dg[Dg.length-1];
     const S=[];
-    /* Passo 1 */
-    S.push(["Especificações, ζ e ωn",passoEspec(sm,A,B,k,SP)]);
-    /* Passo 2 */
-    S.push(["Polos dominantes desejados",
-      EQ(`s_d=-\\zeta\\omega_n\\pm j\\omega_n\\sqrt{1-\\zeta^2}=-\\sigma\\pm j\\omega_d`)+
-      EQ(`s_d=${cxT(sd)}`)+
-      EQ(`\\beta=\\arccos\\zeta=\\arccos(${fmt(zeta,4)})=${fmt(Math.acos(zeta)*180/Math.PI,4)}^\\circ`)+
-      EQ(`|s_d|=\\omega_n=${fmt(wn,4)}`)]);
-    /* Passo 3 */
-    S.push(["Malha aberta com o controlador",
-      EQ(`G(s)=\\frac{${polyStr(Gn,"s")}}{${polyStr(Gd,"s")}},\\qquad H(s)=\\frac{${polyStr(Hn,"s")}}{${polyStr(Hd,"s")}}`)+
-      EQ(`G(s)H(s)=\\frac{${polyStr(Ng,"s")}}{${polyStr(Dg,"s")}}`)+
-      EQ(`k=\\frac{${fmt(Ng[Ng.length-1])}}{${fmt(Dg[Dg.length-1])}}=${fmt(kG)}`)+
-      `<p><b>Polos (n<sub>p</sub> = ${polosP.length}):</b> ${polosP.map((p,i)=>`$p_${i+1}=${cxT(p)}$`).join(", ")}</p>`+
-      `<p><b>Zeros (n<sub>z</sub> = ${zerosP.length}):</b> ${zerosP.length?zerosP.map((z,i)=>`$z_${i+1}=${cxT(z)}$`).join(", "):"nenhum"}</p>`+
-      (ctrlTex[type]?EQ(ctrlTex[type]):`<p>Controlador: ${cTxt}</p>`)+
-      (d.lead?"":`<p>Restam duas incógnitas: $z$, a posição do zero, que sai do critério de ângulo, e $K_c$, que sai do critério de módulo, ambos em $s=s_d$.</p>`)]);
-    /* Passo 4 */
-    const angL=(arr,tag)=>arr.map((r,i)=>{const df=Cx.sub(sd,r);return EQ(`\\angle(s_d-${tag}_${i+1})=\\angle\\left(${cxT(sd)}-(${cxT(r)})\\right)=\\angle(${cxT(df)})=${fmt(dgn(df),4)}^\\circ`)}).join("");
-    const sumP=polosP.reduce((a,p)=>a+dgn(Cx.sub(sd,p)),0),sumZ=zerosP.reduce((a,z)=>a+dgn(Cx.sub(sd,z)),0),th=sumZ-sumP;
-    S.push(["Critério de ângulo em sd",
-      EQ(`\\angle C(s_d)G(s_d)H(s_d)=\\sum\\angle(s_d-z_j)-\\sum\\angle(s_d-p_i)=180^\\circ\\pm q\\cdot360^\\circ`)+
-      `<p><b>Ângulos dos polos da planta:</b></p>`+angL(polosP,"p")+EQ(`\\sum\\angle(s_d-p_i)=${fmt(sumP,4)}^\\circ`)+
-      `<p><b>Ângulos dos zeros da planta:</b></p>`+(zerosP.length?angL(zerosP,"z")+EQ(`\\sum\\angle(s_d-z_j)=${fmt(sumZ,4)}^\\circ`):"<p>Sem zeros.</p>")+
-      EQ(`\\theta=\\sum\\angle(s_d-z_j)-\\sum\\angle(s_d-p_i)=${fmt(sumZ,4)}^\\circ-${fmt(sumP,4)}^\\circ=${fmt(th,4)}^\\circ`)+
-      EQ(`\\phi_c=180^\\circ-\\theta\\equiv${fmt(deg(d.need),4)}^\\circ\\pmod{360^\\circ}`)+
-      (d.phi!==undefined?EQ(`\\angle(s_d+z)=${fmt(deg(d.phi),4)}^\\circ`):"")]);
-
+    S.push(["Especificações, ζ e ωn",`<p>Especificação informada: ${spec}.</p><p>Convertida em ζ = <b>${fmt(zeta)}</b> e ωn = ${fmt(wn)} rad/s (MP ≈ ${fmt(MP,3)} %, ts ≈ ${fmt(tsS,3)} s).</p>`]);
+    S.push(["Polos dominantes desejados",`<p>σ = ζωn = <b>${fmt(sigma)}</b> e ωd = ωn√(1−ζ²) = ${fmt(wd)} rad/s.</p><p>Polo desejado: sd = −σ + jωd = <b>${fc(sd)}</b></p>`]);
+    S.push(["Malha aberta com o controlador",`<p>G(sd)H(sd) = ${fc(P)}, com módulo ${fmt(d.magP)} e fase ${fmt(deg(d.argP),4)}°.</p><p>Controlador: ${cTxt}</p>`]);
+    S.push(["Critério de ângulo em sd",`<p>O controlador precisa fornecer ∠C(sd) = 180° − ∠GH(sd) = <b>${fmt(deg(d.need),4)}°</b>.</p>`]);
     if(!d.ok){
       out.innerHTML=head+stepsHtml(S)+`<p class="msg">${d.why}</p>`;
-      last=null;tex(out);return;
+      last=null;return;
     }
-
-    /* Passo 5 */
-    const h5=d.note?`<p>${d.note}</p>`:d.lead?`<p>Controlador K(s + z)/(s + p): z = ${fmt(d.z)} e p = ${fmt(d.p)}.</p>`:
-      EQ(`\\tan\\phi=\\frac{\\omega_d}{z-\\sigma}\\;\\Rightarrow\\;z=\\sigma+\\frac{\\omega_d}{\\tan\\phi}`)+
-      EQ(`z=${fmt(sigma,4)}+\\frac{${fmt(wd,4)}}{\\tan(${fmt(deg(d.phi),4)}^\\circ)}=${fmt(sigma,4)}+\\frac{${fmt(wd,4)}}{${fmt(Math.tan(d.phi),4)}}=${fmt(d.z,4)}`)+
-      EQ(`s=-z=${fmt(-d.z,4)}`)+(d.z>0?"":`<p class="bad">Zero no semiplano direito: confira a estabilidade.</p>`);
-    S.push(["Localização do zero do controlador",h5]);
-
-    /* Passo 6 */
-    let h6=`<p>Este tipo de controlador tem o ganho determinado pelo valor dado; veja os ganhos no passo 7.</p>`;
-    if(d.m!==undefined){
-      const dP=polosP.map(p=>Cx.abs(Cx.sub(sd,p))),dZ=zerosP.map(z=>Cx.abs(Cx.sub(sd,z)));
-      const prodP=dP.reduce((a,b)=>a*b,1),prodZ=dZ.reduce((a,b)=>a*b,1),magGH=Math.abs(kG)*prodZ/prodP;
-      const mod=Math.hypot(sd[0],sd[1]);
-      h6=`<p><b>Distâncias aos polos da planta:</b></p>`+dP.map((v,i)=>EQ(`|s_d-p_${i+1}|=|${cxT(Cx.sub(sd,polosP[i]))}|=${fmt(v,4)}`)).join("")+
-        EQ(`\\prod|s_d-p_i|=${dP.map(v=>fmt(v,4)).join("\\cdot")}=${fmt(prodP,4)}`)+
-        `<p><b>Distâncias aos zeros da planta:</b></p>`+(dZ.length?dZ.map((v,i)=>EQ(`|s_d-z_${i+1}|=|${cxT(Cx.sub(sd,zerosP[i]))}|=${fmt(v,4)}`)).join("")+EQ(`\\prod|s_d-z_j|=${dZ.map(v=>fmt(v,4)).join("\\cdot")}=${fmt(prodZ,4)}`):"<p>Sem zeros.</p>")+
-        EQ(`|s_d+z|=\\sqrt{(z-\\sigma)^2+\\omega_d^2}=\\sqrt{(${fmt(d.z-sigma,4)})^2+${fmt(wd,4)}^2}=${fmt(d.m,4)}`)+
-        EQ(`|GH(s_d)|=|k|\\frac{\\prod|s_d-z_j|}{\\prod|s_d-p_i|}=${fmt(Math.abs(kG),4)}\\cdot\\frac{${fmt(prodZ,4)}}{${fmt(prodP,4)}}=${fmt(magGH,4)}`)+
-        (type==="PD"?EQ(`|K_c(s_d+z)\\,GH(s_d)|=1\\;\\Rightarrow\\;K_c=\\frac{1}{|s_d+z|\\,|GH(s_d)|}=\\frac{1}{${fmt(d.m,4)}\\cdot${fmt(magGH,4)}}=${fmt(d.Kd,5)}`)
-          :type==="PI"?EQ(`K_p=\\frac{|s_d|}{|s_d+z|\\,|GH(s_d)|}=\\frac{${fmt(mod,4)}}{${fmt(d.m,4)}\\cdot${fmt(magGH,4)}}=${fmt(d.Kp,5)}`)
-          :EQ(`K_d=\\frac{|s_d|}{|s_d+z|^2\\,|GH(s_d)|}=\\frac{${fmt(mod,4)}}{${fmt(d.m,4)}^2\\cdot${fmt(magGH,4)}}=${fmt(d.Kd,5)}`));
-    }
-    S.push(["Critério de módulo e Kc",h6]);
-
-    /* Passo 7 */
+    const zTxt=d.z>0?"":" (zero no semiplano direito: confira a estabilidade)";
+    S.push(["Localização do zero do controlador",d.note?`<p>${d.note}</p>`:d.lead?`<p>Controlador K(s + z)/(s + p): z = <b>${fmt(d.z)}</b> e p = <b>${fmt(d.p)}</b>, um deles dado e o outro pelo critério de ângulo.</p>`:`<p>∠(sd + z) = ${fmt(deg(d.phi),4)}°, então z = σ + ωd/tan(φ) = <b>${fmt(d.z)}</b>${zTxt}.</p>`]);
+    S.push(["Critério de módulo e Kc",`<p>|C(sd)·G(sd)·H(sd)| = 1 fornece os ganhos abaixo${d.m!==undefined?`, com |sd + z| = ${fmt(d.m)}`:""}.</p>`]);
     const cards=d.cards||(d.lead?[[d.K,"K"],[d.z,"zero z"],[d.p,"polo p"]]:[[d.Kp,"Kp"],[d.Ki,"Ki"],[d.Kd,"Kd"],[d.z,"zero z"]]);
-    let h7="";
-    if(type==="PD")h7=EQ(`C(s)=K_p+K_d\\,s=K_c(s+z)\\;\\Rightarrow\\;K_p=K_c\\,z,\\qquad K_d=K_c`)+EQ(`K_d=${fmt(d.Kd,5)},\\qquad K_p=${fmt(d.Kd,5)}\\cdot${fmt(d.z,5)}=${fmt(d.Kp,5)}`);
-    else if(type==="PI")h7=EQ(`K_i=K_p\\,z=${fmt(d.Kp,5)}\\cdot${fmt(d.z,5)}=${fmt(d.Ki,5)}`);
-    else if(type==="PID")h7=EQ(`K_p=2K_d\\,z=2\\cdot${fmt(d.Kd,5)}\\cdot${fmt(d.z,5)}=${fmt(d.Kp,5)},\\qquad K_i=K_d\\,z^2=${fmt(d.Ki,5)}`);
-    S.push(["Ganhos do controlador",h7+`<div class="gains">${cards.map(q=>`<div><b>${fmt(q[0])}</b><span>${q[1]}</span></div>`).join("")}</div><p class="hint">${cTxt}</p>`]);
-
-    /* Passo 8 */
+    S.push(["Ganhos do controlador",`<div class="gains">${cards.map(c=>`<div><b>${fmt(c[0])}</b><span>${c[1]}</span></div>`).join("")}</div><p class="hint">${cTxt}</p>`]);
     const numT=pmul(pmul(d.Nc,Gn),Hd),denT=padd(pmul(pmul(d.Dc,Gd),Hd),pmul(pmul(d.Nc,Gn),Hn));
-    const lN=denT[denT.length-1],numN=pscale(numT,1/lN),denN=pscale(denT,1/lN);
-    const poles=roots(denT),zerosMF=roots(numT);
+    const poles=roots(denT);
     const dist=Math.min(...poles.map(p=>Cx.abs(Cx.sub(p,sd))));
     const stable=poles.every(p=>p[0]<-1e-9);
-    const naoDom=poles.filter(p=>Cx.abs(Cx.sub(p,sd))>1e-4&&Cx.abs(Cx.sub(p,[sd[0],-sd[1]]))>1e-4);
-    const aviso=naoDom.some(p=>Math.abs(p[0])<5*sigma);
     const cl=constOf(pmul(d.Nc,Ng),pmul(d.Dc,Dg));
-    const e=!cl?null:cl.t===0?{Kp:fmt(cl.c,5),Kv:"0",Ka:"0",ed:fmt(1/(1+cl.c),5),er:"\\infty",ep:"\\infty"}
-      :cl.t===1?{Kp:"\\infty",Kv:fmt(cl.c,5),Ka:"0",ed:"0",er:fmt(1/cl.c,5),ep:"\\infty"}
-      :{Kp:"\\infty",Kv:"\\infty",Ka:fmt(cl.c,5),ed:"0",er:"0",ep:fmt(1/cl.c,5)};
-    const h8=EQ(`T(s)=\\frac{C(s)G(s)}{1+C(s)G(s)H(s)}=\\frac{N_cN_GD_H}{D_cD_GD_H+N_cN_GN_H}`)+
-      EQ(`T(s)=\\frac{${polyStr(numN,"s")}}{${polyStr(denN,"s")}}`)+
-      EQ(`\\text{Equação característica: }${polyStr(denN,"s")}=0`)+
-      `<p><b>Polos de malha fechada:</b></p>`+poles.map((p,i)=>EQ(`s_${i+1}=${cxT(p)}`)).join("")+
-      `<p><b>Zeros de malha fechada:</b> ${zerosMF.length?zerosMF.map(z=>`$${cxT(z)}$`).join(", "):"nenhum"}</p>`+
-      `<p class="${stable?"ok":"bad"}">${stable?"Todos os polos estão no semiplano esquerdo: sistema estável.":"Há polo fora do semiplano esquerdo: sistema instável."} Distância do polo mais próximo ao polo desejado: ${fmt(dist,3)}.</p>`+
-      (aviso?`<p class="msg">Há polo a menos de 5 vezes a parte real de s_d. A aproximação de segunda ordem fica fraca, e a resposta real (passo 9) pode fugir das especificações.</p>`:"")+
-      (e?`<p><b>Constantes de erro estático</b> (sistema tipo ${cl.t}):</p>`+
-        EQ(`K_p=\\lim_{s\\to0}C\\,G\\,H=${e.Kp},\\qquad K_v=\\lim_{s\\to0}s\\,C\\,G\\,H=${e.Kv},\\qquad K_a=\\lim_{s\\to0}s^2C\\,G\\,H=${e.Ka}`)+
-        EQ(`e_{\\text{degrau}}=\\frac{1}{1+K_p}=${e.ed},\\qquad e_{\\text{rampa}}=\\frac{1}{K_v}=${e.er},\\qquad e_{\\text{parábola}}=\\frac{1}{K_a}=${e.ep}`):"")+
-      `<canvas id="c2" role="img" aria-label="Polos de malha fechada no plano s"></canvas><p class="hint">Círculos: polo desejado. ×: polos de malha fechada.</p>`;
-    S.push(["Malha fechada, dominância e erro (verificação)",h8]);
-
-    /* Passo 9 */
+    const ess=cl&&cl.t===0?1/(1+cl.c):0;
+    S.push(["Malha fechada, dominância e erro (verificação)",`<p>Polos de malha fechada: ${poles.map(p=>`<b>${fc(p)}</b>`).join(", ")}.</p><p class="${stable?"ok":"bad"}">${stable?"Todos os polos estão no semiplano esquerdo: sistema estável.":"Há polo fora do semiplano esquerdo: sistema instável."} Distância do polo mais próximo ao polo desejado: ${fmt(dist,3)}.</p>${cl?`<p>${cl.nome} = ${fmt(cl.c)} no sistema compensado. Erro em regime ao degrau unitário: ${cl.t===0?`e<sub>ss</sub> = 1/(1+${cl.nome}) = <b>${fmt(ess)}</b>`:"e<sub>ss</sub> = 0"}.</p>`:""}<canvas id="c2" role="img" aria-label="Polos de malha fechada no plano s"></canvas><p class="hint">Círculos: polo desejado. ×: polos de malha fechada.</p>`]);
     const tmax=Math.max(tsS*3,0.5);
     const sim=stepResponse(numT,denT,tmax,6000);
-    const yf=Math.abs(peval(denT,[0,0])[0])>1e-12?peval(numT,[0,0])[0]/peval(denT,[0,0])[0]:(sim?sim.y[sim.y.length-1]:NaN);
-    const band=k===4?.02:.05;
-    const MPi=100*Math.exp(-Math.PI*zeta/Math.sqrt(1-zeta*zeta)),tpi=Math.PI/wd,tsi=k/sigma;
-    let h9=EQ(`M_P=100\\,e^{-\\pi\\zeta/\\sqrt{1-\\zeta^2}}=${fmt(MPi,4)}\\%,\\qquad t_p=\\frac{\\pi}{\\omega_d}=${fmt(tpi,4)}\\,\\text{s},\\qquad t_s=\\frac{${k}}{\\sigma}=${fmt(tsi,4)}\\,\\text{s}`);
+    let yf=NaN;
     if(sim){
-      const m=metrics(sim.t,sim.y,yf,band);
+      yf=Math.abs(peval(denT,[0,0])[0])>1e-12?peval(numT,[0,0])[0]/peval(denT,[0,0])[0]:sim.y[sim.y.length-1];
+      const m=metrics(sim.t,sim.y,yf,k===4?.02:.05);
       const okMP=m.os<=MP+0.5,okTs=m.ts<=tsS*1.02;
-      h9+=EQ(`y(\\infty)=T(0)=\\frac{${fmt(numN[0],5)}}{${fmt(denN[0],5)}}=${fmt(yf,4)}`)+
-        `<p>Simulação de $T(s)$ em espaço de estados (Runge-Kutta 4), com entrada em degrau unitário.</p>`+
-        `<div class="scroll"><table><tr><th>Grandeza</th><th>2ª ordem ideal</th><th>Simulado</th></tr>
-        <tr><td>Sobressinal</td><td>${fmt(MPi,4)} %</td><td class="${okMP?"ok":"bad"}">${fmt(m.os,4)} %</td></tr>
-        <tr><td>Tempo de pico</td><td>${fmt(tpi,4)} s</td><td>${fmt(m.tp,4)} s</td></tr>
-        <tr><td>Tempo de acomodação (${c})</td><td>${fmt(tsi,4)} s</td><td class="${okTs?"ok":"bad"}">${fmt(m.ts,4)} s</td></tr>
-        <tr><td>Valor final</td><td>1</td><td>${fmt(yf,4)}</td></tr></table></div>
+      S.push(["Resposta ao degrau unitário (verificação)",`<div class="scroll"><table>
+        <tr><th></th><th>Obtido</th><th>Pedido</th></tr>
+        <tr><td>Sobressinal</td><td class="${okMP?"ok":"bad"}">${fmt(m.os,4)} %</td><td>≤ ${fmt(MP)} %</td></tr>
+        <tr><td>Tempo de acomodação (${k===4?"2%":"5%"})</td><td class="${okTs?"ok":"bad"}">${fmt(m.ts,4)} s</td><td>≤ ${fmt(tsS)} s</td></tr>
+        <tr><td>Tempo de pico</td><td>${fmt(m.tp,4)} s</td><td></td></tr>
+        <tr><td>Valor final</td><td>${fmt(yf,4)}</td><td></td></tr></table></div>
         <canvas id="c1" role="img" aria-label="Resposta ao degrau"></canvas>
-        <p class="hint">Linha tracejada: ts pedido. Faixa sombreada: ${c} em torno do valor final.</p>
-        <p class="${okMP?"ok":"bad"}">MP = ${fmt(m.os,4)} % ${okMP?"atende":"não atende"} a MP ≤ ${fmt(MP)} %.</p>
-        <p class="${okTs?"ok":"bad"}">ts(${c}) = ${fmt(m.ts,4)} s ${okTs?"atende":"não atende"} a ts ≤ ${fmt(tsS)} s.</p>`;
+        <p class="hint">Linha tracejada: ts pedido. Faixa sombreada: ${k===4?"2%":"5%"} em torno do valor final.</p>`]);
     }else{
-      h9+=`<p class="msg">A função de transferência de malha fechada é imprópria, então a resposta ao degrau não foi simulada.</p>`;
+      S.push(["Resposta ao degrau unitário (verificação)",`<p class="msg">A função de transferência de malha fechada é imprópria (grau do numerador maior que o do denominador), então a resposta ao degrau não foi simulada.</p>`]);
     }
-    S.push(["Resposta ao degrau unitário (verificação)",h9]);
-
-    /* Passo 10 (LGR) */
     const br=[];
     for(let i=0;i<=120;i++){try{br.push(roots(padd(pmul(d.Dc,Dg),pscale(pmul(d.Nc,Ng),Math.pow(10,-2+4*i/120)))))}catch(_){}}
-    S.push(["LGR do sistema compensado (verificação)",
-      `<p>Varredura do multiplicador $r$ do ganho do controlador, de 0.01 a 100 vezes o valor de projeto, na equação $D_cD_GD_H+r\\,N_cN_GN_H=0$. Para $r=1$ estão os polos de malha fechada (×).</p><canvas id="c3" role="img" aria-label="Lugar das raízes do sistema compensado"></canvas><p class="hint">Círculos: polo desejado. ×: polos de malha fechada no projeto.</p>`,true]);
-
+    S.push(["LGR do sistema compensado (verificação)",`<p>Varredura do ganho do controlador em torno do valor de projeto. Pontos: ramos do LGR.</p><canvas id="c3" role="img" aria-label="Lugar das raízes do sistema compensado"></canvas><p class="hint">Círculos: polo desejado. ×: polos de malha fechada no projeto.</p>`,true]);
     out.innerHTML=head+stepsHtml(S)+discCard(d);
     out.querySelectorAll("details.step").forEach(x=>x.addEventListener("toggle",drawPlots));
     last={sim,yf,k,tsS,poles,sd,lgr:br};
     drawPlots();
-    tex(out);
   }catch(err){
     out.innerHTML=`<p class="msg">${err.message}</p>`;last=null;
   }
 }
-  
+/* ---------- passos, constante de erro e questões ---------- */
+const stepsHtml=S=>`<div class="steps">${S.map((s,i)=>`<details class="step"><summary>${s[2]?"":`<b>Passo ${i+1}:</b> `}${s[0]}</summary><div>${s[1]}</div></details>`).join("")}</div>`;
+function setAll(on){document.querySelectorAll("#out details.step").forEach(x=>x.open=on)}
+window.onbeforeprint=()=>setAll(true);
+function constOf(N,D){
+  const f=p=>p.findIndex(v=>Math.abs(v)>1e-12),kN=f(N),kD=f(D);
+  if(kN<0||kD<0)return null;const t=kD-kN;if(t<0)return null;
+  return{t,c:N[kN]/D[kD],nome:["Kp","Kv","Ka"][t]||"K"};
+}
+/* Enunciados cadastrados. Questões sem dados mantêm os campos atuais: complete-as aqui. */
+const LISTA_PDF={1:"lista-exercicio-1.pdf",2:"lista-exercicio-2.pdf"};
+const QUESTOES=[
+  {ex:1,q:1,enun:"Dado o sistema G(s) = 4(s + 4)/(s(s + 2)²) e H(s) = 1, projetar um controlador PD para que, em malha fechada, o sistema apresente MP ≤ 10% e tempo de acomodação (5%) inferior a 4 s.",
+   gn:"4 16",gd:"1 4 4 0",hn:"1",hd:"1",ct:"PD",sm:"mp_ts",mp:10,ts:4,cr:"3"},
+  {ex:1,q:2},{ex:1,q:3},{ex:1,q:4},{ex:2,q:1},{ex:2,q:2}];
+let curQ=null;
+function buildQbar(){
+  $("qbar").innerHTML=`<div class="qbar-title">Questões da lista</div>`+[1,2].map(ex=>`<div class="qg"><span class="qlab">${ex}º exercício</span>${QUESTOES.filter(x=>x.ex===ex).map(x=>`<button type="button" class="qb" data-ex="${ex}" data-q="${x.q}" aria-pressed="false">Questão ${x.q}</button>`).join("")}<a class="qb dash" href="${LISTA_PDF[ex]}" target="_blank" rel="noopener">PDF da lista</a></div>`).join("");
+  $("qbar").onclick=e=>{const b=e.target.closest("button.qb");if(b)selectQ(+b.dataset.ex,+b.dataset.q)};
+}
+function selectQ(ex,q){
+  curQ=QUESTOES.find(x=>x.ex===ex&&x.q===q)||null;
+  document.querySelectorAll("#qbar button.qb").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.ex===ex&&+b.dataset.q===q)));
+  if(curQ&&curQ.enun){
+    $("gn").value=curQ.gn;$("gd").value=curQ.gd;$("hn").value=curQ.hn;$("hd").value=curQ.hd;
+    $("ct").value=curQ.ct;setCt();
+    $("sm").value=curQ.sm;setSpec();
+    $("mp").value=curQ.mp;$("ts").value=curQ.ts;$("cr").value=curQ.cr;
+  }
+  run();
+}
+function plotLGR(cv,branches,poles,sd){
+  const{g,w,h}=setup(cv);const pad={l:44,r:12,t:12,b:28};
+  const pts=branches.flat();
+  const R=1.2*Math.max(1,Math.abs(sd[0]),Math.abs(sd[1]),...pts.map(p=>Math.max(Math.abs(p[0]),Math.abs(p[1]))));
+  const{X,Y}=axes(g,w,h,-2*R,R*.3,-R,R,pad,"Re","Im");
+  g.fillStyle=css("--curve");
+  pts.forEach(p=>{g.beginPath();g.arc(X(p[0]),Y(p[1]),1.6,0,TWO_PI);g.fill()});
+  g.strokeStyle=css("--des");g.lineWidth=2;
+  [sd,[sd[0],-sd[1]]].forEach(p=>{g.beginPath();g.arc(X(p[0]),Y(p[1]),7,0,TWO_PI);g.stroke()});
+  g.strokeStyle=css("--pole");
+  poles.forEach(p=>{const x=X(p[0]),y=Y(p[1]);g.beginPath();g.moveTo(x-5,y-5);g.lineTo(x+5,y+5);g.moveTo(x+5,y-5);g.lineTo(x-5,y+5);g.stroke()});
+}
+function drawPlots(){
+  if(!last)return;
+  const vis=id=>{const c=$(id);return!!c&&c.clientWidth>0};
+  if(last.sim&&vis("c1"))plotStep($("c1"),last.sim.t,last.sim.y,last.yf,last.k===4?.02:.05,last.tsS);
+  if(vis("c2"))plotPoles($("c2"),last.poles,last.sd);
+  if(vis("c3"))plotLGR($("c3"),last.lgr,last.poles,last.sd);
+}
+/* ---------- especificação -> polo dominante ---------- */
+function specPoles(m,a,b,k){
+  const bad=(c,t)=>{if(!c)throw new Error(t)};
+  const zMP=mp=>{bad(mp>0&&mp<100,"MP deve estar entre 0 e 100%.");const l=Math.log(mp/100);return -l/Math.sqrt(Math.PI**2+l*l)};
+  const zOk=z=>bad(z>0&&z<1,"ζ deve estar entre 0 e 1.");
+  let zeta,sigma,wd;
+  if(m==="mp_ts"){zeta=zMP(a);bad(b>0,"ts deve ser maior que zero.");sigma=k/b;wd=sigma*Math.sqrt(1-zeta*zeta)/zeta}
+  else if(m==="mp_tp"){zeta=zMP(a);bad(b>0,"tp deve ser maior que zero.");wd=Math.PI/b;sigma=zeta*wd/Math.sqrt(1-zeta*zeta)}
+  else if(m==="z_ts"){zeta=a;zOk(zeta);bad(b>0,"ts deve ser maior que zero.");sigma=k/b;wd=sigma*Math.sqrt(1-zeta*zeta)/zeta}
+  else if(m==="ts_tp"){bad(a>0&&b>0,"ts e tp devem ser maiores que zero.");sigma=k/a;wd=Math.PI/b;zeta=sigma/Math.hypot(sigma,wd)}
+  else if(m==="z_wn"){zeta=a;zOk(zeta);bad(b>0,"ωn deve ser maior que zero.");sigma=zeta*b;wd=b*Math.sqrt(1-zeta*zeta)}
+  else{sigma=Math.abs(a);wd=b;bad(sigma>0&&wd>0,"Informe parte real não nula e parte imaginária positiva.");zeta=sigma/Math.hypot(sigma,wd)}
+  return{zeta,sigma,wd,wn:Math.hypot(sigma,wd),MP:100*Math.exp(-Math.PI*zeta/Math.sqrt(1-zeta*zeta)),tsS:k/sigma};
+}
+const SM={mp_ts:["MP máximo (%)","ts máximo (s)",10,2],mp_tp:["MP máximo (%)","tp (s)",10,1],z_ts:["ζ","ts máximo (s)",0.6,2],ts_tp:["ts máximo (s)","tp (s)",2,1],z_wn:["ζ","ωn (rad/s)",0.6,3],poles:["Parte real do polo","Parte imaginária (ωd)",-2,2.7]};
+function setSpec(){const s=SM[$("sm").value];$("la").textContent=s[0];$("lb").textContent=s[1];$("mp").value=s[2];$("ts").value=s[3]}
+function setCt(){const t=$("ct").value;$("cvw").hidden=!(t==="LZ"||t==="LP"||t==="LL");$("cew").hidden=!(t==="LL"||t==="LG");$("cvl").textContent=t==="LP"?"Polo p dado":t==="LL"?"Zero z dado do avanço":"Zero z dado"}
+function setTool(){const t=$("tl").value;["disc","zn1","zn2"].forEach(n=>$("t_"+n).hidden=n!==t)}
+
+/* ---------- K(s+z)/(s+p) com zero ou polo dado ---------- */
+function designLead(type,sd,P,x){
+  const sig=-sd[0],w=sd[1],magP=Cx.abs(P),argP=Cx.arg(P),need=mod2(Math.PI-argP);
+  const fail=why=>({ok:false,need,argP,magP,why});
+  const msg="O critério de ângulo não tem solução real com esse valor dado. Tente outro valor de z ou de p.";
+  if(!isFinite(x))return fail("Informe o valor dado de z ou de p.");
+  const argSx=Math.atan2(w,sd[0]+x);let z,p,ph;
+  if(type==="LZ"){z=x;ph=mod2(argSx-need);if(ph<=1e-9||ph>=Math.PI-1e-9)return fail(msg);p=sig+w/Math.tan(ph)}
+  else{p=x;ph=mod2(need+argSx);if(ph<=1e-9||ph>=Math.PI-1e-9)return fail(msg);z=sig+w/Math.tan(ph)}
+  const K=Math.hypot(sd[0]+p,w)/(Math.hypot(sd[0]+z,w)*magP);
+  return{ok:true,lead:true,need,argP,magP,z,p,K,Nc:[K*z,K],Dc:[p,1]};
+}
+
+/* ---------- a/(s+b), atraso-avanço e atraso pelo erro ---------- */
+let GH={N:[1],D:[1]};
+function errConst(){
+  const first=p=>p.findIndex(v=>Math.abs(v)>1e-12),kN=first(GH.N),kD=first(GH.D),t=kD-kN;
+  if(t<0)throw new Error("G(s)H(s) tem zero na origem: não há constante de erro finita.");
+  return{t,c:GH.N[kN]/GH.D[kD],nome:["Kp","Kv","Ka"][t]||"K"};
+}
+function designA(sd,P){
+  const sig=-sd[0],w=sd[1],magP=Cx.abs(P),argP=Cx.arg(P),need=mod2(Math.PI-argP),ph=mod2(-need);
+  if(ph<=1e-9||ph>=Math.PI-1e-9)return{ok:false,need,argP,magP,why:"Um polo real em −b não consegue fornecer o ângulo necessário nesse polo desejado. Tente outro tipo de controlador."};
+  const b=sig+w/Math.tan(ph),a=Math.hypot(sd[0]+b,w)/magP;
+  return{ok:true,lead:true,need,argP,magP,Nc:[a],Dc:[b,1],cards:[[a,"a"],[b,"polo b"]],ctxt:"C(s) = a/(s + b)",
+    note:`Controlador a/(s + b): ∠(sd + b) = ${fmt(deg(ph),4)}° dá b = <b>${fmt(b)}</b>, e o critério de módulo dá a = <b>${fmt(a)}</b>`};
+}
+function designLag(sd,P,Kreq){
+  const sig=-sd[0],magP=Cx.abs(P),argP=Cx.arg(P),need=mod2(Math.PI-argP);
+  if(!(Kreq>0))return{ok:false,need,argP,magP,why:"Informe a constante de erro desejada (maior que zero)."};
+  const e=errConst(),K0=1/magP,beta=Math.max(Kreq/(K0*e.c),1),zc=sig/10,pc=zc/beta;
+  const Cl=Cx.div([sd[0]+zc,sd[1]],[sd[0]+pc,sd[1]]),K=K0/Cx.abs(Cl);
+  const off=Math.abs(mod2(need+Math.PI)-Math.PI);
+  return{ok:true,lead:true,need,argP,magP,Nc:[K*zc,K],Dc:[pc,1],cards:[[K,"K"],[zc,"zero zc"],[pc,"polo pc"],[beta,"β = zc/pc"]],ctxt:"C(s) = K(s + zc)/(s + pc)",
+    note:`Atraso pelo erro: o ganho sem compensador dá ${e.nome} = ${fmt(K0*e.c)}; para chegar a ${fmt(Kreq)}, β = <b>${fmt(beta)}</b>, com zc = σ/10 = ${fmt(zc)} e pc = zc/β = ${fmt(pc)}. ${off>0.09?`<span class="bad">O polo desejado está ${fmt(deg(off),3)}° fora do LGR sem compensação: o atraso sozinho não o alcança, considere o atraso-avanço.</span>`:"O polo desejado está sobre o LGR da planta."}`};
+}
+function designLL(sd,P,z,Kreq){
+  const sig=-sd[0],magP=Cx.abs(P),argP=Cx.arg(P),need=mod2(Math.PI-argP);
+  if(!isFinite(z)||!(Kreq>0))return{ok:false,need,argP,magP,why:"Informe o zero z do avanço e a constante de erro desejada."};
+  const e=errConst(),zc=sig/10;let beta=1,r;
+  const lead=b=>{const pc=zc/b;return designLead("LZ",sd,Cx.mul(P,Cx.div([sd[0]+zc,sd[1]],[sd[0]+pc,sd[1]])),z)};
+  for(let i=0;i<80;i++){
+    r=lead(beta);if(!r.ok)return r;
+    const nb=Math.max(Kreq/(r.K*z/r.p*e.c),1),done=Math.abs(nb-beta)<1e-10;beta=nb;if(done)break;
+  }
+  r=lead(beta);if(!r.ok)return r;
+  const pc=zc/beta,K=r.K,p=r.p;
+  return{ok:true,lead:true,need,argP,magP,Nc:pmul([K*z,K],[zc,1]),Dc:pmul([p,1],[pc,1]),
+    cards:[[K,"K"],[z,"zero z"],[p,"polo p"],[zc,"zero zc"],[pc,"polo pc"]],ctxt:"C(s) = K(s + z)(s + zc) / ((s + p)(s + pc))",
+    note:`Atraso-avanço: o avanço usa o zero z dado e acha p = <b>${fmt(p)}</b> pelo ângulo, já contando o atraso. O atraso (zc = σ/10 = ${fmt(zc)}, pc = <b>${fmt(pc)}</b>, β = ${fmt(beta)}) eleva ${e.nome} até ${fmt(Kreq)}. Ganho K = <b>${fmt(K)}</b>`};
+}
+
+/* ---------- discretização ---------- */
+const eye=n=>Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>+(i===j)));
+const mm=(X,Y)=>X.map(r=>Y[0].map((_,j)=>r.reduce((s,v,k)=>s+v*Y[k][j],0)));
+const ma=(X,Y)=>X.map((r,i)=>r.map((v,j)=>v+Y[i][j]));
+const ms=(X,k)=>X.map(r=>r.map(v=>v*k));
+function expm(M){
+  const n=M.length,nm=Math.max(...M.map(r=>r.reduce((s,v)=>s+Math.abs(v),0)));
+  const sq=Math.max(0,Math.ceil(Math.log2(nm+1e-300))+1);
+  const X=ms(M,1/2**sq);let R=eye(n),T=eye(n);
+  for(let k=1;k<=20;k++){T=ms(mm(T,X),1/k);R=ma(R,T)}
+  for(let i=0;i<sq;i++)R=mm(R,R);return R;
+}
+function tf2ss(num,den){
+  num=trim(num);den=trim(den);const n=den.length-1;
+  if(n<1)throw new Error("O denominador precisa ter grau 1 ou maior.");
+  const a=pscale(den.slice().reverse(),1/den[n]),b=Array(n+1).fill(0),nr=pscale(num.slice().reverse(),1/den[n]);
+  nr.forEach((v,i)=>b[n+1-nr.length+i]=v);
+  const D=b[0],C=Array.from({length:n},(_,k)=>b[n-k]-D*a[n-k]);
+  const A=Array.from({length:n},()=>Array(n).fill(0));
+  for(let k=0;k<n-1;k++)A[k][k+1]=1;for(let k=0;k<n;k++)A[n-1][k]=-a[n-k];
+  const B=Array(n).fill(0);B[n-1]=1;return{A,B,C,D};
+}
+function discretizeTF(num,den,m,T){
+  num=trim(num);den=trim(den);
+  if(!(T>0))throw new Error("O período T deve ser maior que zero.");
+  if(m==="soz"){
+    if(num.length>den.length)throw new Error("A invariância ao degrau exige função própria (grau do numerador ≤ grau do denominador).");
+    const s=tf2ss(num,den),n=s.A.length;
+    const M=Array.from({length:n+1},(_,i)=>Array.from({length:n+1},(_,j)=>i>=n?0:j<n?s.A[i][j]*T:s.B[i]*T));
+    const E=expm(M),Ad=E.slice(0,n).map(r=>r.slice(0,n)),Bd=E.slice(0,n).map(r=>[r[n]]);
+    let Mk=eye(n);const dh=[1],nh=[];
+    for(let k=0;k<n;k++){
+      nh.push(mm([s.C],mm(Mk,Bd))[0][0]);
+      const AM=mm(Ad,Mk),c=-AM.reduce((t,r,i)=>t+r[i],0)/(k+1);dh.push(c);
+      Mk=ma(AM,ms(eye(n),c));
+    }
+    const numH=dh.map(v=>v*s.D);nh.forEach((v,i)=>numH[i+1]+=v);
+    return{num:trim(numH.reverse()),den:trim(dh.slice().reverse())};
+  }
+  const A=pscale([-1,1],(m==="tustin"?2:1)/T),B=m==="tustin"?[1,1]:m==="back"?[0,1]:[1];
+  const md=Math.max(num.length,den.length)-1;
+  const conv=p=>{let r=[0];p.forEach((c,k)=>{r=padd(r,pscale(pmul(ppow(A,k),ppow(B,md-k)),c))});return r};
+  const n=conv(num),d=conv(den),l=d[d.length-1];
+  return{num:pscale(n,1/l),den:pscale(d,1/l)};
+}
+const polyStr=(p,v)=>{p=trim(p);const t=[];for(let k=p.length-1;k>=0;k--){const c=p[k];if(Math.abs(c)<1e-12)continue;
+  const a=fmt(Math.abs(c),4),pw=k===0?"":k===1?v:v+"^"+k,body=k===0?a:Math.abs(Math.abs(c)-1)<1e-9?pw:a+pw;
+  t.push((t.length?(c<0?" − ":" + "):(c<0?"−":""))+body)}return t.join("")||"0"};
+function discCard(d){
+  const m=$("dz").value;if(m==="none")return"";const T=parseFloat($("dt").value);
+  try{const r=discretizeTF(d.Nc,d.Dc,m,T);
+    return`<div class="card"><h2>Controlador discretizado, T = ${fmt(T)} s</h2><p style="margin:0">C(z) = (${polyStr(r.num,"z")}) / (${polyStr(r.den,"z")})</p></div>`}
+  catch(e){return`<p class="msg">Discretização: ${e.message}</p>`}
+}
+
+/* ---------- Ziegler-Nichols ---------- */
+function ultimate(N,D){
+  const mr=K=>roots(padd(D,pscale(N,K))).reduce((a,b)=>b[0]>a[0]?b:a);
+  let prev=1e-3;if(mr(prev)[0]>=0)throw new Error("A malha já é instável para ganhos pequenos; não há Kcr.");
+  for(let K=prev*1.15;K<1e6;K*=1.15){
+    if(mr(K)[0]>=0){let lo=prev,hi=K;for(let i=0;i<60;i++){const mid=(lo+hi)/2;if(mr(mid)[0]<0)lo=mid;else hi=mid}
+      const r=mr(hi);if(!(r[1]>1e-6))throw new Error("A instabilidade começa sem oscilação (polo real): o 2º método não se aplica.");
+      return{Kcr:hi,Pcr:2*Math.PI/r[1]}}
+    prev=K;
+  }
+  throw new Error("Não achei ganho crítico: a malha parece estável para qualquer K.");
+}
+const znTable=rows=>`<div class="scroll"><table><tr><th>Controlador</th><th>Kp</th><th>Ti</th><th>Td</th><th>Ki = Kp/Ti</th><th>Kd = Kp·Td</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])}</td><td>${r[2]?fmt(r[2]):"—"}</td><td>${r[3]?fmt(r[3]):"—"}</td><td>${r[2]?fmt(r[1]/r[2]):"—"}</td><td>${r[3]?fmt(r[1]*r[3]):"—"}</td></tr>`).join("")}</table></div>`;
+function runTools(e){
+  e.preventDefault();const o=$("tout"),t=$("tl").value;
+  try{
+    if(t==="disc"){
+      const r=discretizeTF(parsePoly($("tn").value),parsePoly($("td").value),$("tm").value,parseFloat($("tT").value));
+      o.innerHTML=`<div class="card"><h2>G(z)</h2><p style="margin:0">(${polyStr(r.num,"z")}) / (${polyStr(r.den,"z")})</p></div>`;
+    }else if(t==="zn1"){
+      const L=parseFloat($("zL").value),T=parseFloat($("zT").value);
+      if(!(L>0&&T>0))throw new Error("L e T devem ser maiores que zero.");
+      o.innerHTML=znTable([["P",T/L],["PI",.9*T/L,L/.3],["PID",1.2*T/L,2*L,.5*L]]);
+    }else{
+      let K=parseFloat($("zK").value),P=parseFloat($("zP").value),src="";
+      if(!(K>0&&P>0)){const u=ultimate(pmul(parsePoly($("gn").value),parsePoly($("hn").value)),pmul(parsePoly($("gd").value),parsePoly($("hd").value)));K=u.Kcr;P=u.Pcr;src=`<p class="hint">Calculados de G(s)H(s): Kcr = ${fmt(K)} e Pcr = ${fmt(P)} s.</p>`}
+      o.innerHTML=src+znTable([["P",.5*K],["PI",.45*K,P/1.2],["PID",.6*K,.5*P,.125*P]]);
+    }
+  }catch(err){o.innerHTML=`<p class="msg">${err.message}</p>`}
+}
 $("sm").addEventListener("change",setSpec);
 $("ct").addEventListener("change",setCt);
 $("tl").addEventListener("change",setTool);
